@@ -22,6 +22,8 @@ async def async_main(config_path: Path | None = None) -> None:
     storage = Storage(config.storage_dir / "state.json", secrets)
     manager = AccountManager(config, storage, secrets)
     await manager.start_existing_clients()
+    await manager.ensure_initial_session()
+
 
     stop_event = asyncio.Event()
 

@@ -66,7 +66,8 @@ Launch the manager with:
 python -m src.main --config config.ini --log-level INFO
 ```
 
-The process will connect to all stored sessions and remain idle until you stop it (Ctrl+C). Use the commands below from any of your logged-in accounts (Saved Messages, private chats, or groups). Commands must be sent by the account itself (outgoing messages).
+The process will connect to all stored sessions and remain idle until you stop it (Ctrl+C). If no `.session` files are present yet, the CLI automatically walks you through entering your **phone number**, **api_id**, and **api_hash**, performs the initial login, and saves the first session before continuing. Use the commands below from any of your logged-in accounts (Saved Messages, private chats, or groups). Commands must be sent by the account itself (outgoing messages).
+
 
 ## Supported Commands
 | Command (Persian)            | Description |
@@ -84,7 +85,8 @@ All long-running tasks (e.g., @spambot queries) run with concurrent throttling a
 
 ## Data Storage
 The JSON database (`<root>/state.json`) includes:
-- Encrypted phone numbers and usernames for each account.
+- Encrypted phone numbers, API credentials, and usernames for each account.
+
 - Cached report results from the most recent @spambot check.
 - Username extraction history with timestamps and chat metadata.
 
