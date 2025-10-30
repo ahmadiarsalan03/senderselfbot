@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.session
+.venv/
+.env
+.DS_Store
+
+# Runtime artefacts
+config.ini
+data/state.json
+data/sessions/
+data/extracts/
+sessions/
+
+# Pytest cache
+.pytest_cache/
