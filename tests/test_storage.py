@@ -19,6 +19,7 @@ def test_account_persistence(tmp_path):
         api_id_encrypted=secrets.encrypt("12345"),
         api_hash_encrypted=secrets.encrypt("hash"),
     )
+
     storage.add_account(record)
 
     accounts = storage.list_accounts()
@@ -26,6 +27,7 @@ def test_account_persistence(tmp_path):
     assert accounts[0].masked_phone(secrets).startswith("***")
     assert accounts[0].api_id_encrypted is not None
     assert accounts[0].api_hash_encrypted is not None
+
 
     storage.update_username("/tmp/session", "username")
     assert storage.list_accounts()[0].username == "username"

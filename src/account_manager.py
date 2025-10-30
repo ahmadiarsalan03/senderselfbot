@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+
 from telethon import TelegramClient, events, errors
 
 from .command_parser import CommandType, contains_greeting, parse_command
@@ -42,6 +43,7 @@ class AccountManager:
             if not session_path.exists():
                 LOGGER.warning("Session file %s missing; skipping", session_path)
                 continue
+               
             await self._start_client(record)
 
     async def _start_client(self, record: AccountRecord) -> Optional[TelegramClient]:
@@ -252,6 +254,7 @@ class AccountManager:
                 return
 
             me = await temp_client.get_me()
+
             record = self._build_account_record(
                 phone=phone,
                 session_path=session_path,
@@ -260,6 +263,7 @@ class AccountManager:
                 api_hash=self.config.api_hash,
             )
             self.storage.add_account(record)
+
             await status_message.edit("✅ Account successfully added and session saved.")
             self._register_handlers(temp_client)
             self.clients[str(session_path)] = temp_client
@@ -470,3 +474,4 @@ class AccountManager:
             if value:
                 return value
             print("api_hash cannot be empty.")
+

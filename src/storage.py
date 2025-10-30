@@ -20,6 +20,7 @@ class AccountRecord:
     api_id_encrypted: Optional[str] = None
     api_hash_encrypted: Optional[str] = None
 
+
     def masked_phone(self, secrets: SecretsBox) -> str:
         try:
             phone = secrets.decrypt(self.phone_encrypted)
@@ -72,6 +73,7 @@ class Storage:
     def add_account(self, record: AccountRecord) -> None:
         accounts = self.data.setdefault("accounts", [])
         accounts = [acc for acc in accounts if acc.get("session_path") != record.session_path]
+
         accounts.append(asdict(record))
         self.data["accounts"] = accounts
         self._save()
