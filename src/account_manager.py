@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+
 from telethon import TelegramClient, events, errors
 
 from .command_parser import CommandType, contains_greeting, parse_command
@@ -42,6 +43,7 @@ class AccountManager:
             if not session_path.exists():
                 LOGGER.warning("Session file %s missing; skipping", session_path)
                 continue
+
             await self._start_client(record)
 
     async def _start_client(self, record: AccountRecord) -> Optional[TelegramClient]:
@@ -216,6 +218,7 @@ class AccountManager:
             temp_client = TelegramClient(session_path, self.config.api_id, self.config.api_hash)
 
             await status_message.edit("Sending login code…")
+
             try:
                 await temp_client.connect()
                 await temp_client.send_code_request(phone)
@@ -229,6 +232,7 @@ class AccountManager:
                 return
 
             await status_message.edit("Enter the login code sent by Telegram:")
+
             code_response = await conv.get_response()
             code = code_response.raw_text.strip().replace(" ", "")
 
@@ -238,6 +242,7 @@ class AccountManager:
                 await status_message.edit(
                     "Your account has 2-step verification. Please enter your password:"
                 )
+
                 password_response = await conv.get_response()
                 password = password_response.raw_text
                 try:
@@ -250,6 +255,7 @@ class AccountManager:
                     await status_message.edit(f"❌ Failed to verify password: {exc}")
                     await temp_client.disconnect()
                     return
+
             except errors.PhoneCodeInvalidError:
                 await status_message.edit("❌ Invalid code provided. Please try again.")
                 await temp_client.disconnect()
@@ -264,6 +270,7 @@ class AccountManager:
                 return
 
             me = await temp_client.get_me()
+
             record = self._build_account_record(
                 phone=phone,
                 session_path=session_path,
@@ -272,6 +279,7 @@ class AccountManager:
                 api_hash=self.config.api_hash,
             )
             self.storage.add_account(record)
+
             await status_message.edit("✅ Account successfully added and session saved.")
             self._register_handlers(temp_client)
             self.clients[str(session_path)] = temp_client
@@ -482,3 +490,4 @@ class AccountManager:
             if value:
                 return value
             print("api_hash cannot be empty.")
+

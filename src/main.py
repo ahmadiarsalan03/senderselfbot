@@ -24,6 +24,7 @@ async def async_main(config_path: Path | None = None) -> None:
     await manager.start_existing_clients()
     await manager.ensure_initial_session()
 
+
     stop_event = asyncio.Event()
 
     def _signal_handler(*_: int) -> None:
