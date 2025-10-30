@@ -43,7 +43,7 @@ class AccountManager:
             if not session_path.exists():
                 LOGGER.warning("Session file %s missing; skipping", session_path)
                 continue
-               
+
             await self._start_client(record)
 
     async def _start_client(self, record: AccountRecord) -> Optional[TelegramClient]:
@@ -216,6 +216,9 @@ class AccountManager:
             normalized_phone = phone.replace(" ", "")
             session_path = (self.config.sessions_dir / f"{normalized_phone}.session").resolve()
             temp_client = TelegramClient(session_path, self.config.api_id, self.config.api_hash)
+
+            await status_message.edit("Sending login code…")
+
             try:
                 await temp_client.connect()
                 await temp_client.send_code_request(phone)
@@ -228,14 +231,18 @@ class AccountManager:
                 await temp_client.disconnect()
                 return
 
-            await conv.send_message("Enter the login code sent by Telegram:")
+            await status_message.edit("Enter the login code sent by Telegram:")
+
             code_response = await conv.get_response()
             code = code_response.raw_text.strip().replace(" ", "")
 
             try:
                 await temp_client.sign_in(phone=phone, code=code)
             except errors.SessionPasswordNeededError:
-                await conv.send_message("Your account has 2-step verification. Please enter your password:")
+                await status_message.edit(
+                    "Your account has 2-step verification. Please enter your password:"
+                )
+
                 password_response = await conv.get_response()
                 password = password_response.raw_text
                 try:
@@ -244,12 +251,21 @@ class AccountManager:
                     await status_message.edit("❌ Invalid password provided.")
                     await temp_client.disconnect()
                     return
+                except Exception as exc:  # pragma: no cover - network errors
+                    await status_message.edit(f"❌ Failed to verify password: {exc}")
+                    await temp_client.disconnect()
+                    return
+
             except errors.PhoneCodeInvalidError:
                 await status_message.edit("❌ Invalid code provided. Please try again.")
                 await temp_client.disconnect()
                 return
             except errors.PhoneCodeExpiredError:
                 await status_message.edit("❌ Code expired. Please request a new one.")
+                await temp_client.disconnect()
+                return
+            except Exception as exc:  # pragma: no cover - network errors
+                await status_message.edit(f"❌ Failed to sign in: {exc}")
                 await temp_client.disconnect()
                 return
 
